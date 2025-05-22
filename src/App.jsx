@@ -20,6 +20,14 @@ function App() {
 
       if(snap.empty) {
         console.log("No documents found");
+        const newDocRef = await addDoc(collectionRef, {
+          uid: "test",
+          createdAt: new Date(),
+          count: 0,
+        });
+        setDoc({ ref: newDocRef, data: () => ({ count: 0 }) });
+        setCount(0);
+        return;
       }
 
       if(snap.docs.length > 1){
@@ -47,11 +55,7 @@ function App() {
 
   useEffect(() => {
     if (!doc) {
-      addDoc(collection(db, "test"), {
-        uid: "test",
-        createdAt: new Date(),
-        count,
-      });
+      return;
     }
     else {
       const docRef = doc.ref;
