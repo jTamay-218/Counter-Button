@@ -6,6 +6,7 @@ import './App.css';
 import { db, auth, google } from "../firebase.ts";
 import { addDoc, collection, getDocs } from "firebase/firestore";
 import { signInWithPopup, signOut } from "firebase/auth";
+import { updateDoc } from "firebase/firestore"; // make sure this is imported
 
 function App() {
   const [count, setCount] = useState(0);
@@ -44,21 +45,21 @@ function App() {
     }
   }
 
-  // useEffect(() => {
-  //   if (!doc) {
-  //     addDoc(collection(db, "test"), {
-  //       uid: "test",
-  //       createdAt: new Date(),
-  //       count,
-  //     });
-  //   }
-  //   else {
-  //     const docRef = doc.ref;
-  //     docRef.update({
-  //       count,
-  //     });
-  //   }
-  // },[doc, count]);
+  useEffect(() => {
+    if (!doc) {
+      addDoc(collection(db, "test"), {
+        uid: "test",
+        createdAt: new Date(),
+        count,
+      });
+    }
+    else {
+      const docRef = doc.ref;
+      updateDoc(docRef, {
+         count 
+      });
+    }
+  },[doc, count]);
 
   return (
     <>
