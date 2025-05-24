@@ -4,7 +4,7 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 
 import { db, auth, google } from "../firebase.ts";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { signInWithPopup, signOut } from "firebase/auth";
 
 function App() {
@@ -22,7 +22,11 @@ function App() {
           setCount(docSnap.data().count || 0);
           setDocRef(testDocRef);
         } else {
-          await setDoc(testDocRef, { uid: "test", createdAt: new Date(), count: 0 });
+          await setDoc(testDocRef, { 
+            uid: "test", 
+            createdAt: new Date(), 
+            count: 0 
+          });
           setCount(0);
           setDocRef(testDocRef);
         }
@@ -44,6 +48,27 @@ function App() {
         .catch(console.error);
     }
   };
+
+  // adding the option to reset the counter by deleting the doc
+  const handleDelete = async () => {
+  if (docRef) {
+    await deleteDoc(docRef);
+    setDocRef(null);
+    setCount(0);
+
+    // creating a new document when deletion occurs
+    const docSnap = await getDoc(testDocRef);
+    if (!docSnap.exists()) {
+      await setDoc(testDocRef, { 
+        uid: "test", 
+        createdAt: new Date(), 
+        count: 0 
+      });
+      setCount(0);
+      setDocRef(testDocRef);
+    }
+  }
+};
 
   useEffect(() => {
     if (!docRef) return;
@@ -70,7 +95,8 @@ function App() {
       <h1>Vite + React</h1>
       <div className="card">
         <button onClick={() => setCount((c) => c + 1)}>count is {count}</button>
-        <button onClick={handleAuthClick}>{user ? "sign out" : "sign in"}</button>
+        <button onClick={handleAuthClick}>{user ? "Sign out" : "Sign in"}</button>
+        <button onClick={handleDelete}>{"Reset Counter"}</button>
         <p>
           Edit <code>src/App.jsx</code> and save to test HMR
         </p>
