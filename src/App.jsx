@@ -1,69 +1,61 @@
 import { useState, useEffect } from "react";
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import './App.css';
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import "./App.css";
 
 import { db, auth, google } from "../firebase.ts";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { signInWithPopup, signOut } from "firebase/auth";
-import { updateDoc } from "firebase/firestore"; // make sure this is imported
 
 function App() {
   const [count, setCount] = useState(0);
-  const [doc, setDoc] = useState(null);
+  const [docRef, setDocRef] = useState(null);
   const [user, setUser] = useState(null);
-  
+
+  const testDocRef = doc(db, "test", "single-document");
+
   useEffect(() => {
-    const loadCollection = async () => {
-      const collectionRef = collection(db, "test");
-      const snap = await getDocs(collectionRef);
-
-      if(snap.empty) {
-        console.log("No documents found");
-        const newDocRef = await addDoc(collectionRef, {
-          uid: "test",
-          createdAt: new Date(),
-          count: 0,
-        });
-        setDoc({ ref: newDocRef, data: () => ({ count: 0 }) });
-        setCount(0);
-        return;
+    const loadDocument = async () => {
+      try {
+        const docSnap = await getDoc(testDocRef);
+        if (docSnap.exists()) {
+          setCount(docSnap.data().count || 0);
+          setDocRef(testDocRef);
+        } else {
+          await setDoc(testDocRef, { uid: "test", createdAt: new Date(), count: 0 });
+          setCount(0);
+          setDocRef(testDocRef);
+        }
+      } catch (error) {
+        console.error("Error loading document:", error);
       }
-
-      if(snap.docs.length > 1){
-        console.log("More than one document found");
-      }
-      
-      const firstDoc = snap.docs[0];
-      setCount(firstDoc.data().count);
-      setDoc(firstDoc);
     };
-    loadCollection();
+
+    loadDocument();
   }, []);
 
   const handleAuthClick = () => {
-    if(user) {
+    if (user) {
       signOut(auth).catch(console.error);
       setUser(null);
-    }
-    else {
+    } else {
       signInWithPopup(auth, google)
-      .then((result) => setUser(result.user))
-      .catch(console.error);
+        .then((result) => setUser(result.user))
+        .catch(console.error);
     }
-  }
+  };
 
   useEffect(() => {
-    if (!doc) {
-      return;
-    }
-    else {
-      const docRef = doc.ref;
-      updateDoc(docRef, {
-         count 
-      });
-    }
-  },[doc, count]);
+    if (!docRef) return;
+    const updateCount = async () => {
+      try {
+        await updateDoc(docRef, { count });
+      } catch (error) {
+        console.error("Error updating count:", error);
+      }
+    };
+    updateCount();
+  }, [docRef, count]);
 
   return (
     <>
@@ -77,15 +69,13 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-        <button onClick={handleAuthClick}>{user ? "sign out": "sign in"}</button>
+        <button onClick={() => setCount((c) => c + 1)}>count is {count}</button>
+        <button onClick={handleAuthClick}>{user ? "sign out" : "sign in"}</button>
         <p>
           Edit <code>src/App.jsx</code> and save to test HMR
         </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
     </>
   );
 }
