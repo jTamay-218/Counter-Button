@@ -104,7 +104,7 @@ function App() {
       <h1>Count is {count}</h1>
       <div className="card">
         <button onClick={() => setCount((c) => c + 1)}>Increase Count</button>
-        <button onClick={handleDelete}>{"Reset Counter"}</button>
+        <button onClick={handleDelete}>{"Reset Count"}</button>
         <button onClick={handleAuthClick}>{user ? "Sign out" : "Sign in"}</button>
       </div>
       <p className="read-the-docs">Click the counter!</p>
