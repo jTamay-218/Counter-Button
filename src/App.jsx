@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+// import reactLogo from "./assets/react.svg";
+// import viteLogo from "/vite.svg";
+
+import monkeImage1 from "./assets/serious-monke.jpg.webp";
+import monkeImage2 from "./assets/happy-monke.jpg.webp";
+
 import "./App.css";
 
 import { db, auth, google } from "../firebase.ts";
@@ -13,6 +17,10 @@ function App() {
   const [user, setUser] = useState(null);
 
   const testDocRef = doc(db, "test", "single-document");
+
+  // handling change of image with count
+  let currentImage = monkeImage1;
+  if (count > 20) currentImage = monkeImage2;
 
   useEffect(() => {
     const loadDocument = async () => {
@@ -51,7 +59,13 @@ function App() {
 
   // adding the option to reset the counter by deleting the doc
   const handleDelete = async () => {
-  if (docRef) {
+    // adding a message for when user tries to reset and counter = 0
+    if(count === 0) {
+      alert("Already at 0!");
+      return;
+    }
+
+    if (docRef) {
     await deleteDoc(docRef);
     setDocRef(null);
     setCount(0);
@@ -85,23 +99,15 @@ function App() {
   return (
     <>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <img src={currentImage} alt="Button image" className="logo" />
       </div>
-      <h1>Vite + React</h1>
+      <h1>Count is {count}</h1>
       <div className="card">
-        <button onClick={() => setCount((c) => c + 1)}>count is {count}</button>
-        <button onClick={handleAuthClick}>{user ? "Sign out" : "Sign in"}</button>
+        <button onClick={() => setCount((c) => c + 1)}>Increase Count</button>
         <button onClick={handleDelete}>{"Reset Counter"}</button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+        <button onClick={handleAuthClick}>{user ? "Sign out" : "Sign in"}</button>
       </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
+      <p className="read-the-docs">Click the counter!</p>
     </>
   );
 }
