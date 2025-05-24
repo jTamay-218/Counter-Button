@@ -10,5 +10,5 @@ This is a simple React + Firebase app with the CRUD operations using Firestore.
 
 ## Demo
 Refer to video below to see the basic functions
-(./Counter-Demo.mp4)
+- Counter App: https://youtu.be/bcl-30XEFCw
 
